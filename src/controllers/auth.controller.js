@@ -1,7 +1,7 @@
 import logger from '#config/logger.js';
-import { signUpSchema, signInSchema } from '#validations/auth.validation.js';
+import { signInSchema, signUpSchema } from '#validations/auth.validation.js';
 import { formatValidationError } from '#utils/format.js';
-import { createUser, authenticateUser } from '#services/auth.service.js';
+import { authenticateUser, createUser } from '#services/auth.service.js';
 import { jwtToken } from '#utils/jwt.js';
 import { cookies } from '#utils/cookies.js';
 
@@ -45,7 +45,7 @@ export const signUp = async (req, res, next) => {
       return res.status(409).json({ error: 'Email already exists' });
     }
 
-    return res.status(500).json({ error: 'Internal Server Error' });
+    next(e);
   }
 };
 
@@ -90,8 +90,6 @@ export const signIn = async (req, res, next) => {
     }
 
     next(e);
-
-    return res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
@@ -105,6 +103,5 @@ export const signOut = async (req, res, next) => {
   } catch (e) {
     logger.error('Sign out error', e);
     next(e);
-    return res.status(500).json({ error: 'Internal Server Error' });
   }
 };

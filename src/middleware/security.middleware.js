@@ -29,11 +29,13 @@ const securityMiddleware = async (req, res, next) => {
         mode: 'LIVE',
         interval: '1m',
         max: limit,
-        name: `${role}-rate-limit`,
       })
     );
 
-    const decision = await client.protect(req);
+    const decision = await client.protect(req, {
+      requested: 1,
+      characteristics: [`${role}-rate-limit`],
+    });
 
     if (decision.isDenied() && decision.reason.isBot()) {
       logger.warn('Bot request blocked', {
@@ -69,9 +71,9 @@ const securityMiddleware = async (req, res, next) => {
         path: req.path,
       });
 
-      return res.status(403).json({
-        error: 'Forbidden',
-        message: 'Too many requests',
+      return res.status(429).json({
+        error: 'Too many requests',
+        message,
       });
     }
 
